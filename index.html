@@ -193,39 +193,34 @@
         const wordList = document.getElementById("word-list");
         if (!wordList) return;
 
-        if (words.length === 0) {
-            wordList.innerHTML = "<p style='text-align:center;'>لا توجد كلمات مضافة حالياً. اضف بعض الكلمات من لوحة التحكم!</p>";
+                if (words.length === 0) {
+            wordList.innerHTML = "<p style='text-align:center; color:#94a3b8; grid-column: 1/-1;'>لا توجد كلمات مضافة حالياً في قاعدة البيانات.</p>";
             return;
         }
 
+        // عرض الكلمات بتنسيق كروت التصميم الداكن
         wordList.innerHTML = words.map(item => `
-            <div style="background: #ffffff; padding: 15px 20px; margin: 12px 0; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-right: 5px solid #007bff;">
-                <div>
-                    <h3 style="margin: 0; color: #0f172a; font-size: 1.2rem; font-weight: 700;">${item.word}</h3>
-                    <p style="margin: 4px 0 0; color: #64748b; font-size: 1rem;">${item.translation}</p>
-                </div>
-                <button onclick="speakWord('${item.word}')" style="background: #007bff; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 1rem;">
-                    <i class="fa-solid fa-volume-high"></i>
+            <div class="word-card">
+                <h3>${item.word}</h3>
+                <p>${item.translation}</p>
+                <button onclick="speakWord('${item.word}')" class="speech-btn">
+                    <i class="fa-solid fa-volume-high"></i> استمع للنطق
                 </button>
             </div>
         `).join('');
     }
 
-    // نطق الكلمة عند الضغط على زر الصوت
-function speakWord(text) {
-    if ('speechSynthesis' in window) {
-        const utterance = new SpeechSynthesisUtterance(text);
-        utterance.lang = 'en-US';
-        window.speechSynthesis.speak(utterance);
-    } else {
-        alert('متصفحك لا يدعم خاصية نطق الصوت.');
+    function speakWord(text) {
+        if ('speechSynthesis' in window) {
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'en-US';
+            window.speechSynthesis.speak(utterance);
+        }
     }
-}
 
-// تشغيل الجلب عند فتح الصفحة
-window.onload = fetchWordsFromFirebase;
+    window.onload = fetchWordsFromFirebase;
 </script>
-
+    
 </body>
 </html>
 
