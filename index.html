@@ -77,8 +77,9 @@
 
         <h2>الكلمات الإنجليزية</h2>
 
+        <!-- هنا سيتم عرض الكلمات الجاهزة من Firebase -->
         <div id="word-list">
-
+            <p style="text-align: center; color: #64748b;">جاري تحميل الكلمات...</p>
         </div>
 
     </div>
@@ -151,12 +152,13 @@
 <script src="js/speech.js"></script>
 <script src="js/quiz.js"></script>
 <script src="js/app.js"></script>
+
 <!-- مكتبات Firebase -->
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
 
 <script>
-    // إعدادات مشروعك في Firebase
+    // إعدادات Firebase
     const firebaseConfig = {
         apiKey: "AIzaSyBYbm_RX8w4iV3W7jxdjQEsOMBISwiQzpA",
         authDomain: "en-sal.firebaseapp.com",
@@ -170,28 +172,60 @@
     firebase.initializeApp(firebaseConfig);
     const db = firebase.firestore();
 
-    // مصفوفة الكلمات التي سيستخدمها موقعك
     let words = [];
 
-    // جلب الكلمات تلقائياً من قاعدة البيانات عند فتح الموقع
+    // جلب الكلمات من قاعدة البيانات
     function fetchWordsFromFirebase() {
         db.collection("words").orderBy("createdAt", "desc").get().then((querySnapshot) => {
             words = [];
             querySnapshot.forEach((doc) => {
                 words.push(doc.data());
             });
-            console.log("تم تحميل الكلمات بنجاح:", words);
-            
-            // 💡 إذا كان لديك دالة تبدأ اللعبة أو تعرض الكلمات، استدعها هنا
-            // مثال: startApp(); أو showWord();
+            renderWords();
         }).catch((error) => {
             console.error("خطأ في جلب الكلمات: ", error);
+            document.getElementById("word-list").innerHTML = "<p>حدث خطأ أثناء تحميل الكلمات.</p>";
         });
     }
 
-    // تشغيل جلب الكلمات فور تحميل الصفحة
-    window.onload = fetchWordsFromFirebase;
+    // عرض الكلمات داخل الصفحة
+    function renderWords() {
+        const wordList = document.getElementById("word-list");
+        if (!wordList) return;
+
+        if (words.length === 0) {
+            wordList.innerHTML = "<p style='text-align:center;'>لا توجد كلمات مضافة حالياً. اضف بعض الكلمات من لوحة التحكم!</p>";
+            return;
+        }
+
+        wordList.innerHTML = words.map(item => `
+            <div style="background: #ffffff; padding: 15px 20px; margin: 12px 0; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); display: flex; justify-content: space-between; align-items: center; border-right: 5px solid #007bff;">
+                <div>
+                    <h3 style="margin: 0; color: #0f172a; font-size: 1.2rem; font-weight: 700;">${item.word}</h3>
+                    <p style="margin: 4px 0 0; color: #64748b; font-size: 1rem;">${item.translation}</p>
+                </div>
+                <button onclick="speakWord('${item.word}')" style="background: #007bff; color: white; border: none; padding: 10px 14px; border-radius: 8px; cursor: pointer; font-size: 1rem;">
+                    <i class="fa-solid fa-volume-high"></i>
+                </button>
+            </div>
+        `).join('');
+    }
+
+    // نطق الكلمة عند الضغط على زر الصوت
+function speakWord(text) {
+    if ('speechSynthesis' in window) {
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.lang = 'en-US';
+        window.speechSynthesis.speak(utterance);
+    } else {
+        alert('متصفحك لا يدعم خاصية نطق الصوت.');
+    }
+}
+
+// تشغيل الجلب عند فتح الصفحة
+window.onload = fetchWordsFromFirebase;
 </script>
-    
+
 </body>
 </html>
+
