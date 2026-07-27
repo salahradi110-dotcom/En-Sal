@@ -12,8 +12,8 @@
     <style>
         body { font-family: system-ui, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; text-align: center; }
         .card { background: white; max-width: 600px; margin: 20px auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
-        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
-        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 95%; }
+        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 90%; }
         button:hover { background: #0056b3; }
         .word-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px 15px; margin: 8px 0; border-radius: 6px; border-right: 4px solid #007bff; }
         .delete-btn { background: #dc3545; width: auto; padding: 6px 12px; margin: 0; font-size: 14px; }
@@ -34,8 +34,8 @@
     <div id="adminContent">
         <div class="card">
             <h2>➕ إضافة كلمة جديدة</h2>
-            <input type="text" id="engWord" placeholder="الكلمة بالإنجليزية (e.g. Success)">
-            <input type="text" id="araWord" placeholder="الترجمة بالعربية (e.g. نجاح)">
+            <input type="text" id="engWord" placeholder="الكلمة بالإنجليزية (مثال: Success)">
+            <input type="text" id="araWord" placeholder="الترجمة بالعربية (مثال: نجاح)">
             <button onclick="addWord()">إضافة إلى قاعدة البيانات</button>
         </div>
 
@@ -46,14 +46,15 @@
     </div>
 
     <script>
-        // 1️⃣ أضف معلومات مشروعك من Firebase هنا
+        // مفاتيح مشروعك الخاصة بـ Firebase
         const firebaseConfig = {
-            apiKey: "YOUR_API_KEY",
-            authDomain: "YOUR_PROJECT.firebaseapp.com",
-            projectId: "YOUR_PROJECT_ID",
-            storageBucket: "YOUR_PROJECT.appspot.com",
-            messagingSenderId: "YOUR_SENDER_ID",
-            appId: "YOUR_APP_ID"
+            apiKey: "AIzaSyBYbm_RX8w4iV3W7jxdjQEsOMBISwiQzpA",
+            authDomain: "en-sal.firebaseapp.com",
+            projectId: "en-sal",
+            storageBucket: "en-sal.firebasestorage.app",
+            messagingSenderId: "1007490025502",
+            appId: "1:1007490025502:web:599e783083f30ae843060f",
+            measurementId: "G-MHKDTGBNC2"
         };
 
         // تهيئة Firebase
@@ -63,7 +64,7 @@
         // كلمة مرور اللوحة
         function checkPass() {
             const pass = document.getElementById('passInput').value;
-            if (pass === "1234") { // يمكنك تغيير كلمة المرور هنا
+            if (pass === "1234") { // يمكنك تغيير كلمة المرور من هنا مستقبلاً
                 document.getElementById('loginCard').style.display = 'none';
                 document.getElementById('adminContent').style.display = 'block';
                 loadWords();
@@ -112,6 +113,9 @@
                         </div>
                     `;
                 });
+            }).catch((error) => {
+                wordsList.innerHTML = "تأكد من تفعيل Firestore Database في وضع الاختبار (Test Mode) من موقع Firebase.";
+                console.error("Error loading words: ", error);
             });
         }
 
