@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم - إدارة الكلمات</title>
+
+    <!-- Firebase SDKs -->
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        body { font-family: system-ui, sans-serif; background: #f0f2f5; margin: 0; padding: 20px; text-align: center; }
+        .card { background: white; max-width: 600px; margin: 20px auto; padding: 25px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        input { width: 90%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; padding: 12px 20px; font-size: 16px; border-radius: 6px; cursor: pointer; margin-top: 10px; width: 95%; }
+        button:hover { background: #0056b3; }
+        .word-item { display: flex; justify-content: space-between; align-items: center; background: #f8f9fa; padding: 10px 15px; margin: 8px 0; border-radius: 6px; border-right: 4px solid #007bff; }
+        .delete-btn { background: #dc3545; width: auto; padding: 6px 12px; margin: 0; font-size: 14px; }
+        .delete-btn:hover { background: #a71d2a; }
+        #adminContent { display: none; }
+    </style>
+</head>
+<body>
+
+    <!-- حماية بسيطة بكلمة مرور -->
+    <div id="loginCard" class="card">
+        <h2>🔒 تسجيل الدخول للوحة التحكم</h2>
+        <input type="password" id="passInput" placeholder="أدخل كلمة المرور (الافتراضية: 1234)">
+        <button onclick="checkPass()">دخول</button>
+    </div>
+
+    <!-- لوحة التحكم -->
+    <div id="adminContent">
+        <div class="card">
+            <h2>➕ إضافة كلمة جديدة</h2>
+            <input type="text" id="engWord" placeholder="الكلمة بالإنجليزية (e.g. Success)">
+            <input type="text" id="araWord" placeholder="الترجمة بالعربية (e.g. نجاح)">
+            <button onclick="addWord()">إضافة إلى قاعدة البيانات</button>
+        </div>
+
+        <div class="card">
+            <h2>📚 الكلمات المضافة حالياً (<span id="count">0</span>)</h2>
+            <div id="wordsList">جاري التحميل...</div>
+        </div>
+    </div>
+
+    <script>
+        // 1️⃣ أضف معلومات مشروعك من Firebase هنا
+        const firebaseConfig = {
+            apiKey: "YOUR_API_KEY",
+            authDomain: "YOUR_PROJECT.firebaseapp.com",
+            projectId: "YOUR_PROJECT_ID",
+            storageBucket: "YOUR_PROJECT.appspot.com",
+            messagingSenderId: "YOUR_SENDER_ID",
+            appId: "YOUR_APP_ID"
+        };
+
+        // تهيئة Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+
+        // كلمة مرور اللوحة
+        function checkPass() {
+            const pass = document.getElementById('passInput').value;
+            if (pass === "1234") { // يمكنك تغيير كلمة المرور هنا
+                document.getElementById('loginCard').style.display = 'none';
+                document.getElementById('adminContent').style.display = 'block';
+                loadWords();
+            } else {
+                alert('كلمة المرور خاطئة!');
+            }
+        }
+
+        // إضافة كلمة
+        async function addWord() {
+            const word = document.getElementById('engWord').value.trim();
+            const translation = document.getElementById('araWord').value.trim();
+
+            if (!word || !translation) {
+                alert('يرجى ملء جميع الحقول');
+                return;
+            }
+
+            try {
+                await db.collection("words").add({
+                    word: word,
+                    translation: translation,
+                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                document.getElementById('engWord').value = '';
+                document.getElementById('araWord').value = '';
+                loadWords();
+            } catch (error) {
+                alert('حدث خطأ أثناء الإضافة: ' + error.message);
+            }
+        }
+
+        // جلب وقراءة الكلمات
+        function loadWords() {
+            const wordsList = document.getElementById('wordsList');
+            db.collection("words").orderBy("createdAt", "desc").get().then((querySnapshot) => {
+                wordsList.innerHTML = '';
+                document.getElementById('count').innerText = querySnapshot.size;
+
+                querySnapshot.forEach((doc) => {
+                    const data = doc.data();
+                    wordsList.innerHTML += `
+                        <div class="word-item">
+                            <span><strong>${data.word}</strong>: ${data.translation}</span>
+                            <button class="delete-btn" onclick="deleteWord('${doc.id}')">حذف</button>
+                        </div>
+                    `;
+                });
+            });
+        }
+
+        // حذف كلمة
+        async function deleteWord(id) {
+            if (confirm('هل أنت تأكد من حذف هذه الكلمة؟')) {
+                await db.collection("words").doc(id).delete();
+                loadWords();
+            }
+        }
+    </script>
+</body>
+</html>
