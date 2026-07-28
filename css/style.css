@@ -286,3 +286,47 @@ footer h3{
     font-weight:bold;
     color:#4ade80;
 }
+/* تكبير عناوين القائمة العلوية */
+header nav a {
+    font-size: 1.1rem !important;
+    padding: 8px 12px !important;
+}
+
+/* تكبير عنوان قسم الكلمات */
+#words h2 {
+    font-size: 2.2rem !important;
+    margin-bottom: 25px !important;
+}
+
+/* تكبير كروت الكلمات وإعطائها مساحة أكبر */
+.word-card {
+    padding: 22px 15px !important;
+    border-radius: 14px !important;
+}
+
+/* تكبير الكلمة الإنجليزية */
+.word-card h3 {
+    font-size: 1.5rem !important;
+    margin-bottom: 8px !important;
+}
+
+/* تكبير الترجمة العربية */
+.word-card p {
+    font-size: 1.2rem !important;
+    margin-bottom: 14px !important;
+}
+
+/* تكبير زر النطق */
+.word-card button, .speech-btn {
+    font-size: 1.05rem !important;
+    padding: 10px 18px !important;
+    border-radius: 8px !important;
+    font-weight: 600 !important;
+}
+
+/* ضبط مصفوفة الكروت لتكون واضحة ومريحة للعين */
+#word-list {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+    gap: 16px !important;
+}
